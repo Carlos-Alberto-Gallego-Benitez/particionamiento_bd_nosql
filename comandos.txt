@@ -1,0 +1,121 @@
+
+**Primer comando ejecutado  en consola segundo plano**
+
+cluster=new ShardingTest ({shards:3,chunksize:1})
+
+
+**segundo comando en consola llamda blanceador**
+
+db=(new Mongo("localhost:20006")).getDB("torneo_relampago")
+
+
+**tercer comando ejecutado en la consola balanceador**
+
+for(i=0;i<50000;i++) {
+ db.deportistas.insert({"nombre": "Juan"+i, "Apellido": "Urrueta"+i, "Edad": 24+i, "Telefono": 3205678903, "Equipo" : "Los Chavales" +i, "Direccion": "Calle 57 cc # 24 - 56"+i, "documento": 3445657});
+}
+
+
+**cuarto comando ejecutado en la consola balanceador**
+
+for(i=0;i<25000;i++) {
+ db.arbitros.insert({"nombre": "Adrian"+i, "Apellido": "Vélez"+i, "Edad": 19+i, "Telefono": 3205378904,"precio": 4566, "email" : "Los Chavales", "Direccion": "Calle 61 cc # 27 - 36"+i});
+}
+
+**quinto comando ejecutado en la consola balanceador**
+
+for(i=0;i<20000;i++) {
+ db.entrenadores.insert({"nombre": "Juan"+i, "Apellido": "Urrueta"+i, "Edad": 24+i, "Telefono": 3205678903, "Equipo" : "Los Chavales"+i, "Direccion": "Calle 57 cc # 24 - 56"+i});
+
+}
+
+
+**en la misma consola hacemos la interacion**
+
+db.deportistas.count()    PRIMER COMANDO A EJECUTAR
+
+db.arbitros.count()   SEGUNDO COMANDO A EJECUTAR
+
+db.entrenadores.count() TERCER COMANDO A EJECUTAR 
+
+
+**LOS SIGUIENTES COMANDO SE DEBEN EJECUTAR EN LA CONSOLA LLAMADA CONSULTA**
+
+**PRIMER COMANDO A EJECUTAR EN ORDEN**
+
+
+shard1=new Mongo("localhost:20000")
+
+shard1DB=shard1.getDB("torneo_relampago")
+
+show collections
+
+shard1DB.deportistas.count()
+
+
+**SEGUNDO COMANDO A EJECUTAR EN ORDEN**
+
+shard2=new Mongo("localhost:20001")
+
+shard2DB=shard2.getDB("torneo_relampago")
+
+show collections
+
+shard2DB.arbitros.count()
+
+
+**TERCER COMANDO A EJECUTAR EN ORDEN**
+
+shard3=new Mongo("localhost:20002")
+
+shard3DB=shard3.getDB("torneo_relampago")
+
+show collections
+
+shard3DB.entrenadores.count()
+
+
+
+**ACTIVASION SHADING ESTOS COMANDO SERAN EJECUTADOS EN LA CONSOLA DE BALANCEADOR**
+
+**PRIMER COMANDO A EJECUTAR EN ORDEN**
+
+shard1=new Mongo("localhost:20006")
+
+sh.status() 
+
+sh.enableSharding("torneo_relampago") 
+ 
+db.deportistas.ensureIndex({deportistas : 1})
+
+sh.shardCollection("torneo_relampago.deportistas", {deportistas: 1})
+
+
+**Activación del balanceador de carga**
+
+SEGUIR EN ORDEN LOS SIGUIENTES COMANDOS**
+
+sh.getBalancerState() 
+
+sh.setBalancerState(true) 
+
+sh.getBalancerState() 
+
+sh.isBalancerRunning() 
+
+sh.status()
+
+cluster.stop() 
+
+db.adminCommand( { listShards: 1 } ) 
+
+
+
+
+
+
+
+
+
+
+
